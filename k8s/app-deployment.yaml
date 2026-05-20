@@ -28,8 +28,9 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
+            # As variáveis DB_HOST, DB_PORT e DB_NAME devem vir ANTES de
+            # SPRING_DATASOURCE_URL porque o K8s só substitui $(VAR) se a
+            # variável referenciada foi definida anteriormente na mesma lista.
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
@@ -45,6 +46,8 @@ spec:
                 configMapKeyRef:
                   name: universidade-config
                   key: DB_NAME
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:

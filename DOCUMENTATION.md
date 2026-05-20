@@ -9,6 +9,7 @@ orquestrado com **Kubernetes** e preparado para escalonamento automático e depl
 
 | # | Documento | O que explica |
 | --- | --- | --- |
+| 0 | [docs/00-como-iniciar.md](docs/00-como-iniciar.md) | **COMECE AQUI** — Docker Compose e Kubernetes passo a passo (Windows) |
 | 1 | [docs/01-aplicacao.md](docs/01-aplicacao.md) | Código Java, padrões de projeto, fluxo de dados, endpoints |
 | 2 | [docs/02-docker.md](docs/02-docker.md) | Dockerfile linha a linha, docker-compose, volumes, redes |
 | 3 | [docs/03-kubernetes.md](docs/03-kubernetes.md) | Cada arquivo k8s/ explicado em detalhes, kubectl |

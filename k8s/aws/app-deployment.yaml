@@ -29,8 +29,6 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
@@ -46,6 +44,8 @@ spec:
                 configMapKeyRef:
                   name: universidade-config
                   key: DB_NAME
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
