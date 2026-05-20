@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Teste de Elasticidade — XYZ University</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand fw-bold">🎓 XYZ University</span>
+    <div>
+        <a class="nav-link text-white d-inline" th:href="@{/}">Home</a>
+        <a class="nav-link text-white d-inline ms-3" th:href="@{/students}">Students list</a>
+        <a class="nav-link text-warning d-inline ms-3 fw-bold" th:href="@{/stress-test}">Stress Test</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <div class="d-flex align-items-center mb-1 gap-2">
+        <h2 class="mb-0">⚡ Teste de Elasticidade</h2>
+        <span id="badge-status" class="badge fs-6"
+              th:classappend="${status.running()} ? 'bg-danger' : 'bg-secondary'"
+              th:text="${status.running()} ? '● EXECUTANDO' : '● PARADO'">
+        </span>
+    </div>
+    <p class="text-muted mb-4">
+        Gera carga de CPU para acionar o HPA do Kubernetes e demonstrar o escalonamento automático de pods.
+        A <strong>trava de segurança</strong> interrompe o teste automaticamente se a CPU ultrapassar o limite configurado.
+    </p>
+
+    <!-- Flash -->
+    <div th:if="${flashMessage}" class="alert alert-info alert-dismissible fade show">
+        <span th:text="${flashMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Painel de Status (atualizado por polling JS) -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-bold">📊 Status em tempo real</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                        <tr>
+                            <td class="text-muted">Estado</td>
+                            <td><span id="status-running" class="fw-bold"
+                                      th:text="${status.running()} ? 'EXECUTANDO' : 'PARADO'"></span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">CPU atual</td>
+                            <td>
+                                <span id="status-cpu" th:text="${#numbers.formatDecimal(status.cpuUsagePercent(), 1, 1) + '%'}"></span>
+                                <div class="progress mt-1" style="height: 8px;">
+                                    <div id="cpu-bar" class="progress-bar bg-danger" role="progressbar"
+                                         th:style="'width:' + ${status.cpuUsagePercent()} + '%'"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Threads ativas</td>
+                            <td><span id="status-threads" th:text="${status.activeThreads()}"></span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Limite CPU</td>
+                            <td><span id="status-threshold" th:text="${status.cpuThreshold() + '%'}"></span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted" colspan="2">
+                                <small id="status-msg" th:text="${status.message()}" class="text-muted"></small>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <small class="text-muted">Atualizado a cada 2s automaticamente.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Controle -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-bold">🎛️ Controle do Teste</div>
+                <div class="card-body">
+
+                    <!-- Formulário de início -->
+                    <form th:action="@{/stress-test/start}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Threads de carga
+                                <small class="text-muted">(1–16)</small>
+                            </label>
+                            <input type="number" name="threads" class="form-control"
+                                   min="1" max="16" value="2"/>
+                            <div class="form-text">Cada thread executa Fibonacci recursivo sem parar.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Limite de CPU (trava de segurança)
+                                <small class="text-muted">(10–95%)</small>
+                            </label>
+                            <input type="number" name="cpuThreshold" class="form-control"
+                                   min="10" max="95" value="80"/>
+                            <div class="form-text">
+                                O teste para automaticamente quando a CPU ultrapassar este valor.
+                            </div>
+                        </div>
+                        <div class="alert alert-warning py-2 mb-3">
+                            ⚠️ <strong>Atenção:</strong> este teste consome CPU real do seu computador.
+                            Use um limite conservador (ex: 70–80%) para não travar a máquina.
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100"
+                                th:disabled="${status.running()}">
+                            ▶ Iniciar Teste de Carga
+                        </button>
+                    </form>
+
+                    <hr/>
+
+                    <!-- Botão de parada manual -->
+                    <form th:action="@{/stress-test/stop}" method="post">
+                        <button type="submit" class="btn btn-secondary w-100"
+                                th:disabled="${!status.running()}">
+                            ⏹ Parar Teste
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instruções para observar o HPA -->
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header fw-bold text-info">📋 Como observar o Kubernetes escalonando</div>
+                <div class="card-body">
+                    <p>Com o teste em execução e o Kubernetes ativo, abra um terminal e execute:</p>
+                    <pre class="bg-dark text-light p-3 rounded"><code># Observa o HPA em tempo real (atualiza a cada 5s)
+kubectl get hpa -n universidade -w
+
+# Observa os pods sendo criados/destruídos
+kubectl get pods -n universidade -w
+
+# Ver uso de recursos por pod
+kubectl top pods -n universidade</code></pre>
+                    <p class="mb-0 text-muted">
+                        Quando a CPU média dos pods ultrapassar 60% (configurado no HPA),
+                        o Kubernetes criará automaticamente novos pods — até o máximo de 10.
+                        Quando a carga diminuir, os pods extras serão removidos após ~5 minutos.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /row -->
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Polling do status a cada 2 segundos
+    setInterval(() => {
+        fetch('/stress-test/status')
+            .then(r => r.json())
+            .then(s => {
+                document.getElementById('status-running').textContent  = s.running ? 'EXECUTANDO' : 'PARADO';
+                document.getElementById('status-cpu').textContent      = s.cpuUsagePercent.toFixed(1) + '%';
+                document.getElementById('status-threads').textContent  = s.activeThreads;
+                document.getElementById('status-threshold').textContent = s.cpuThreshold + '%';
+                document.getElementById('status-msg').textContent      = s.message;
+                document.getElementById('cpu-bar').style.width         = Math.min(s.cpuUsagePercent, 100) + '%';
+
+                const badge = document.getElementById('badge-status');
+                badge.textContent  = s.running ? '● EXECUTANDO' : '● PARADO';
+                badge.className    = 'badge fs-6 ' + (s.running ? 'bg-danger' : 'bg-secondary');
+            })
+            .catch(() => {});
+    }, 2000);
+</script>
+</body>
+</html>

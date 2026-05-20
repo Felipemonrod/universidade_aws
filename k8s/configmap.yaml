@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: universidade-config
+  namespace: universidade
+data:
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "universidade"
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "8080"

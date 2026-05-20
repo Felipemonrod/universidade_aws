@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: universidade-ingress
+  namespace: universidade
+  annotations:
+    # AWS Load Balancer Controller — provisiona um Application Load Balancer
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/healthcheck-path: "/actuator/health"
+
+    # HTTPS — adicione o ARN do seu certificado do AWS Certificate Manager (ACM)
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    # alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:123456789012:certificate/XXXX-XXXX"
+spec:
+  rules:
+    - host: universidade.seudominio.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: universidade-service
+                port:
+                  number: 80
+
+# Pré-requisito: AWS Load Balancer Controller instalado no EKS.
+# helm repo add eks https://aws.github.io/eks-charts
+# helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+#   -n kube-system \
+#   --set clusterName=universidade-cluster \
+#   --set serviceAccount.create=false \
+#   --set serviceAccount.name=aws-load-balancer-controller

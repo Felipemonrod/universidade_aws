@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: universidade-config
+  namespace: universidade
+data:
+  # Substitua pelo endpoint do seu Amazon RDS PostgreSQL
+  # Exemplo: meu-db.xxxx.us-east-1.rds.amazonaws.com
+  DB_HOST: "SEU_ENDPOINT_RDS.rds.amazonaws.com"
+  DB_PORT: "5432"
+  DB_NAME: "universidade"
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "8080"

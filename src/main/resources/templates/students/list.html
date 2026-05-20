@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>XYZ University — Alunos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand fw-bold">🎓 XYZ University</span>
+    <div>
+        <a class="nav-link text-white d-inline" th:href="@{/}">Home</a>
+        <a class="nav-link text-white d-inline ms-3" th:href="@{/students}">Students list</a>
+        <a class="nav-link text-warning d-inline ms-3 fw-bold" th:href="@{/stress-test}">Stress Test</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- Alertas flash -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <h2>All students</h2>
+
+    <!-- Busca -->
+    <form th:action="@{/students}" method="get" class="row g-2 mb-3">
+        <div class="col-auto">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Buscar por nome, email ou cidade..."
+                   th:value="${search}"/>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+        </div>
+        <div class="col-auto" th:if="${search}">
+            <a th:href="@{/students}" class="btn btn-outline-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(students)}">
+            <td colspan="7" class="text-center text-muted">Nenhum aluno encontrado.</td>
+        </tr>
+        <tr th:each="student : ${students}">
+            <td th:text="${student.name}"></td>
+            <td th:text="${student.address}"></td>
+            <td th:text="${student.city}"></td>
+            <td th:text="${student.state}"></td>
+            <td th:text="${student.email}"></td>
+            <td th:text="${student.phone}"></td>
+            <td>
+                <a th:href="@{/students/{id}/edit(id=${student.id})}" class="btn btn-sm btn-warning">edit</a>
+                <form th:action="@{/students/{id}/delete(id=${student.id})}" method="post" class="d-inline"
+                      onsubmit="return confirm('Confirma remoção do aluno?')">
+                    <button type="submit" class="btn btn-sm btn-danger">delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <nav th:if="${totalPages > 1}">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${currentPage == 0} ? disabled">
+                <a class="page-link" th:href="@{/students(page=${currentPage - 1}, search=${search})}">Anterior</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? active">
+                <a class="page-link" th:href="@{/students(page=${i}, search=${search})}" th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? disabled">
+                <a class="page-link" th:href="@{/students(page=${currentPage + 1}, search=${search})}">Próximo</a>
+            </li>
+        </ul>
+    </nav>
+
+    <p class="text-muted" th:text="${'Total: ' + totalElements + ' aluno(s)'}"></p>
+
+    <a th:href="@{/students/new}" class="btn btn-success">Add a new student</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: universidade-ingress
+  namespace: universidade
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: universidade.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: universidade-service
+                port:
+                  number: 80
+
+# Pré-requisito: NGINX Ingress Controller instalado.
+# minikube: minikube addons enable ingress
+#
+# Adicione ao arquivo hosts do seu sistema:
+# Windows: C:\Windows\System32\drivers\etc\hosts
+# Linux/Mac: /etc/hosts
+# Linha a adicionar: <IP do minikube>  universidade.local
+# Obter IP: minikube ip

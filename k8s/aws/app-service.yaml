@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: universidade-service
+  namespace: universidade
+  annotations:
+    # AWS Load Balancer Controller — provisiona um Network Load Balancer automaticamente
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+spec:
+  selector:
+    app: universidade-app
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+
+# O EKS com AWS Load Balancer Controller provisiona um NLB automaticamente
+# quando type: LoadBalancer é aplicado. O DNS do NLB aparece em EXTERNAL-IP.
+# kubectl get svc -n universidade

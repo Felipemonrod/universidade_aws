@@ -1,0 +1,59 @@
+# ── Maven ─────────────────────────────────────────────────────────────────────
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Spring Boot ───────────────────────────────────────────────────────────────
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+.claude/
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+.vscode/
+
+# ── Sistema Operacional ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ── Variáveis de ambiente ─────────────────────────────────────────────────────
+.env
+.env.*
+*.local
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+spring.log
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# Não ignorar docker-compose.yml e Dockerfile — fazem parte do projeto
+
+# ── Kubernetes secrets com valores REAIS ─────────────────────────────────────
+# Os arquivos secret.yaml neste repo contêm apenas valores de desenvolvimento (base64 de "admin"/"senha123").
+# Em produção, NUNCA versione secrets com credenciais reais.
+# Para usar valores reais, crie um arquivo local .secret.yaml (ignorado pelo git):
+# k8s/secret.local.yaml
+# k8s/aws/secret.local.yaml
+*.secret.yaml
+*.local.yaml
